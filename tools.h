@@ -24,11 +24,11 @@
 #define ILOG(a...) isyslog("rpihddevice: " a)
 #define DLOG(a...) dsyslog("rpihddevice: " a)
 
-#ifdef DEBUG
-#define DBG(a...)  dsyslog("rpihddevice: " a)
-#else
-#define DBG(a...)  void()
-#endif
+//#ifdef DEBUG
+#define DBG(a...)  isyslog("rpihddevice: " a)
+//#else
+//#define DBG(a...)  void()
+//#endif
 
 class cVideoResolution
 {

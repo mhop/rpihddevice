@@ -161,6 +161,7 @@ void cOmxDevice::ScaleVideo(const cRect &Rect)
 
 bool cOmxDevice::SetPlayMode(ePlayMode PlayMode)
 {
+  isyslog("rpihd SetPlayMode");
 	m_mutex->Lock();
 	DBG("SetPlayMode(%s)",
 		PlayMode == pmNone			 ? "none" 			   :
@@ -184,13 +185,22 @@ bool cOmxDevice::SetPlayMode(ePlayMode PlayMode)
 		m_hasAudio = false;
 		m_hasVideo = false;
 		m_videoCodec = cVideoCodec::eInvalid;
-		m_playMode = pmNone;
+#if 1
+		m_audio->DeInit();
+		m_omx->DeInit();
+		m_omx->Init(m_display, m_layer);    
+		m_audio->Init();
+#endif
+ 
 		break;
 
 	case pmAudioVideo:
 	case pmAudioOnly:
 	case pmAudioOnlyBlack:
 	case pmVideoOnly:
+	  //m_omx->Init(m_display, m_layer);
+		//m_audio->Init();
+		//SetVolumeDevice(CurrentVolume());
 		m_playbackSpeed = eNormal;
 		m_direction = eForward;
 		break;
@@ -199,6 +209,7 @@ bool cOmxDevice::SetPlayMode(ePlayMode PlayMode)
 		break;
 	}
 
+	m_playMode = pmNone;
 	m_mutex->Unlock();
 	return true;
 }
@@ -531,11 +542,24 @@ void cOmxDevice::Clear(void)
 {
 	DBG("Clear()");
 	m_mutex->Lock();
+#if 1
 
 	FlushStreams();
 	m_hasAudio = false;
 	m_hasVideo = false;
+#else
+	FlushStreams(true);
+       m_omx->StopVideo();
+       m_hasAudio = false;
+       m_hasVideo = false;
+       m_videoCodec = cVideoCodec::eInvalid;
+       m_playMode = pmNone;
 
+       //DeInit();
+       //Init();
+
+       //SetVolumeDevice(CurrentVolume());
+#endif
 	m_mutex->Unlock();
 	cDevice::Clear();
 }
